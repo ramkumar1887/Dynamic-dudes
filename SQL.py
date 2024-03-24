@@ -50,8 +50,8 @@ def add_user():
     last_name = data.get('last_name')
     username = data.get('username')
     password = data.get('password')
-    image_path = data.get('image_path')
-
+    number = data.get('number')
+    gmail = data.get('gmail')
     # Connect to SQLite database (creates a new one if not exists)
     conn = sqlite3.connect('userdata.db')
     cursor = conn.cursor()
@@ -62,13 +62,14 @@ def add_user():
                         first_name TEXT,
                         last_name TEXT,
                         username TEXT,
-                        password TEXT,
-                        image_path TEXT
+                        password TEXT, 
+                        number TEXT, 
+                        gmail TEXT
                     )''')
 
     # Insert data into the table
-    cursor.execute('''INSERT INTO users (first_name, last_name, username, password, image_path) 
-                      VALUES (?, ?, ?, ?, ?)''', (first_name, last_name, username, password, image_path))
+    cursor.execute('''INSERT INTO users (first_name, last_name, username, password, number, gmail) 
+                      VALUES (?, ?, ?, ?, ?, ?)''', (first_name, last_name, username, password, number, gmail))
 
     # Commit changes and close connection
     conn.commit()
