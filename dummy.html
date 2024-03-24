@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOGIN/SIGN UP</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+    <div class="container">
+        <form class="form" id="login">
+            <h1 class="form__title">Login</h1>
+            <div class="form__message form__message--error"></div>
+            <div class="form__input-group">
+                <input type="text" autofocus class="form__input" placeholder="Username or Email" id="usernameInput">
+                <div class="form__input-error-message"></div>
+            </div>
+            <div class="form__input-group">
+                <input type="password" autofocus class="form__input" placeholder="Password" id="passwordInput">
+                <div class="form__input-error-message"></div>
+            </div>
+            <button class="form__button" id="loginButton">Sign In</button>
+            <p class="form__text">
+                <a class="form__link" href="#" id="linkCreateAccount">Don't have an Account? Create Account</a>
+            </p>
+        </form>
+        <form class="form form--hidden" id="createAccount">
+            <h1 class="form__title">Create Account</h1>
+            <div class="form__message form__message--error"></div>
+            <div class="form__input-group">
+                <input type="text" id="signupFirstName" autofocus class="form__input" placeholder="First Name">
+                <div class="form__input-error-message"></div>
+            </div>
+            <div class="form__input-group">
+                <input type="text" id="signupLastName" autofocus class="form__input" placeholder="Last Name">
+                <div class="form__input-error-message"></div>
+            </div>
+            <div class="form__input-group">
+                <input type="text" id="signupNewUsername" autofocus class="form__input" placeholder="Username">
+                <div class="form__input-error-message"></div>
+            </div>
+
+            <div class="form__input-group">
+                <input type="password" id="signupPassword" autofocus class="form__input" placeholder="Password">
+                <div class="form__input-error-message"></div>
+            </div>
+            <div class="form__input-group">
+                <input type="phone number" id="signupPhoneNumber" autofocus class="form__input"
+                    placeholder="Phone Number">
+                <div class="form__input-error-message"></div>
+            </div>
+            <div class="form__input-group">
+                <input type="email" id="signupemail" autofocus class="form__input"
+                    placeholder="E-Mail">
+                <div class="form__input-error-message"></div>
+            </div>
+            <div class="form__input-group">
+                <input type="password" autofocus class="form__input" placeholder="Confirm Password">
+                <div class="form__input-error-message"></div>
+            </div>
+            <button id="signupButton" class="form__button">Sign Up</button>
+            <p class="form__text">
+                <a class="form__link" href="#" id="linkLogin">Already have an Account? Sign in</a>
+            </p>
+        </form>
+    </div>
+    <script>
+        function clearInputError(inputElement) {
+            inputElement.classList.remove("form__input--error");
+            inputElement.parentElement.querySelector(".form__input-error-message").textContent = "";
+        }
+
+        function setFormMessage(formElement, type, message) {
+            const messageElement = formElement.querySelector(".form__message");
+            messageElement.textContent = message;
+            messageElement.classList.remove("form__message--success", "form__message--error");
+            messageElement.classList.add(`form__message--${type}`);
+        }
+
+        function setInputError(inputElement, message) {
+            inputElement.classList.add("form__input--error");
+            inputElement.parentElement.querySelector(".form__input-error-message").textContent = message;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const loginForm = document.querySelector("#login");
+            const createAccountForm = document.querySelector("#createAccount");
+
+            document.querySelector("#linkCreateAccount").addEventListener("click", (e) => {
+                e.preventDefault();
+                loginForm.classList.add("form--hidden");
+                createAccountForm.classList.remove("form--hidden");
+            });
+
+            document.querySelector("#linkLogin").addEventListener("click", (e) => {
+                e.preventDefault();
+                loginForm.classList.remove("form--hidden");
+                createAccountForm.classList.add("form--hidden");
+            });
+
+            loginForm.addEventListener("submit", e => {
+                e.preventDefault();
+                setFormMessage(loginForm, "error", "Invalid Username/Password combination");
+            });
+
+            document.querySelectorAll(".form__input").forEach(inputElement => {
+                inputElement.addEventListener("blur", e => {
+                    if (e.target.id === "signupNewUsername" && e.target.value.length > 0 && e.target.value.length < 8) {
+                        setInputError(inputElement, "Username must be at least 8 characters in length");
+                    }
+                });
+                inputElement.addEventListener("input", e => {
+                    clearInputError(inputElement);
+                });
+            });
+        });
+        const signupButton = document.querySelector("#signupButton");
+
+        signupButton.addEventListener("click", async (e) => {
+            e.preventDefault();
+
+            const firstName = document.getElementById("signupFirstName").value;
+            const lastName = document.getElementById("signupLastName").value;
+            const username = document.getElementById("signupNewUsername").value;
+            const password = document.getElementById("signupPassword").value;
+            const phonenumber = document.getElementById("signupPhoneNumber").value;
+            const emailid = document.getElementById("signupemail").value;
+
+            const response = await fetch('http://172.16.129.18:5000/add_user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ firstName, lastName, username, password,phonenumber,emailid})
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                setFormMessage(createAccountForm, "success", "Account created successfully!");
+            } else {
+                setFormMessage(createAccountForm, "error", "Error adding user. Please try again later.");
+            }
+        });
+        document.addEventListener("DOMContentLoaded", () => {
+            const loginForm = document.querySelector("#login");
+            const usernameInput = document.getElementById("usernameInput");
+            const passwordInput = document.getElementById("passwordInput");
+
+            const setFormMessage = (formElement, type, message) => {
+                const messageElement = formElement.querySelector(".form__message");
+                messageElement.textContent = message;
+                messageElement.classList.remove("form__message--success", "form__message--error");
+                messageElement.classList.add(`form__message--${type}`);
+            };
+
+            const checkCredentials = async () => {
+                const username = usernameInput.value;
+                const password = passwordInput.value;
+
+                const response = await fetch('http://172.16.129.18:5000/check_credentials', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const result = await response.json();
+
+                if (result.valid) {
+                    // Redirect to dashboard or another page upon successful login
+                    // After successful authentication
+                    sessionStorage.setItem('username', username); // Store the username in sessionStorage
+                    // Redirect to the order page or any other page
+                    window.location.href = "order_page.html";
+
+                    window.location.href = "index3.html";
+                } else {
+                    setFormMessage(loginForm, "error", "Invalid Username/Password combination");
+                }
+            };
+
+            const loginButton = document.getElementById("loginButton");
+            loginButton.addEventListener("click", (e) => {
+                e.preventDefault();
+                checkCredentials();
+            });
+        });
+    </script>
+</body>
+
+</html>
